@@ -8,17 +8,27 @@ import {
   TextInput,
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
+import { ActivityIndicator } from 'react-native-paper';
 
-const programmingLanguages = ['JavaScript', 'Python', 'Go', 'Rust', 'C#', 'Java'];
+const programmingLanguages = ["Python","JavaScript","Java","C#","C++","Go","Rust","TypeScript","Kotlin","Swift","Kotlin","Scala","PHP","Ruby"]
 
 const languageFrameworks = {
-  JavaScript: ['React', 'Vue', 'Angular', 'Next.js'],
-  Python: ['Django', 'Flask', 'FastAPI'],
-  Go: ['Gin', 'Echo', 'Fiber'],
-  Rust: ['Rocket', 'Actix', 'Yew'],
-  'C#': ['ASP.NET', 'Blazor', 'Unity'],
-  Java: ['Spring', 'Struts', 'Hibernate'],
-};
+  "Python": ["Django", "Flask", "FastAPI", "Pyramid", "Tornado"],
+  "JavaScript": ["React", "Vue", "Angular", "Next.js", "Express", "Svelte", "Node.js"],
+  "TypeScript": ["NestJS", "Next.js", "Angular", "Remix", "tRPC"],
+  "Java": ["Spring", "Spring Boot", "Quarkus", "Micronaut", "JSF"],
+  "C#": ["ASP.NET Core", "Blazor", "Unity", "Xamarin", "MAUI"],
+  "C++": ["Qt", "Boost", "Poco", "JUCE"],
+  "Go": ["Gin", "Echo", "Fiber", "Beego", "Revel"],
+  "Rust": ["Rocket", "Actix", "Axum", "Yew", "Tide"],
+  "PHP": ["Laravel", "Symfony", "CodeIgniter", "Zend Framework", "Yii"],
+  "Ruby": ["Ruby on Rails", "Sinatra", "Hanami", "Padrino"],
+  "Swift": ["SwiftUI", "UIKit", "Vapor", "Perfect"],
+  "Kotlin": ["Ktor", "Spring", "Jetpack Compose", "Exposed"],
+  "Scala": ["Play Framework", "Akka HTTP", "Lagom", "Scalatra"]
+}
 
 export default function QuestionnaireScreen() {
   const navigation = useNavigation();
@@ -34,6 +44,7 @@ export default function QuestionnaireScreen() {
   const [step, setStep] = useState('welcome'); // welcome | experience | level | frameworks | final
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleExperience = (hasExperience) => {
     if (hasExperience) {
@@ -98,7 +109,13 @@ export default function QuestionnaireScreen() {
 
   return (
     <View style={styles.container}>
-      <Card style={styles.card}>
+      {loading ?
+      <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#BB86FC" />
+      <Text style={{ color: '#fff', marginTop: 12 }}>Generating your personalized roadmaps...</Text>
+    </View>
+    :
+    <Card style={styles.card}>
         <Card.Content>
           {step === 'welcome' ? (
           <>
@@ -239,12 +256,11 @@ export default function QuestionnaireScreen() {
                 mode="contained"
                 onPress={() => {
                   const userProfile = {
-                    username:name,
-                    email,
+                    username: name.trim(),
+                    email: email.trim(),
                     experiencedLanguages: experienced,
                     learningGoal: learningGoal.trim(),
                   };
-                  console.log(userProfile)
                   navigation.replace('Home', { userProfile });
                 }}
                 disabled={!learningGoal.trim()}
@@ -254,7 +270,7 @@ export default function QuestionnaireScreen() {
             </>
           )}
         </Card.Content>
-      </Card>
+      </Card>}
     </View>
   );
 }
@@ -307,5 +323,11 @@ const styles = StyleSheet.create({
   submenuButton: {
     marginRight: 8,
     marginBottom: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#121212',
   },
 });

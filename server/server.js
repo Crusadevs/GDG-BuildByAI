@@ -1,6 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
+const userRouter = require("./routes/userRoute")
 
 const app = express()
 const PORT = 8080 || process.env.PORT;
@@ -12,6 +13,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 }))
 app.use(express.json({ limit: '50mb' }))
+app.use("/",userRouter);
 
 //MongoDB
 mongoose.connect(process.env.DB_URI)
