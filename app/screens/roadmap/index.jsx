@@ -52,6 +52,15 @@ export default function RoadmapDetail({ route }) {
               <Text style={styles.modalDesc}>{selectedStep.description}</Text>
               <Divider style={{ marginVertical: 12 }} />
 
+              <Text style={styles.keywordsHeader}>🔑 Keywords:</Text>
+              <View style={styles.keywordContainer}>
+                {(selectedStep.keywords || []).map((kw, i) => (
+                  <Text key={i} style={styles.keywordBadge}>
+                    {kw}
+                  </Text>
+                ))}
+              </View>
+
               <Text style={styles.linkHeader}>📚 Free Courses:</Text>
               {(selectedStep.freeCourses || []).map((link, i) => (
                 <Button
@@ -177,5 +186,28 @@ const styles = StyleSheet.create({
   linkText: {
     color: '#BB86FC',
     textDecorationLine: 'underline',
+  },
+  keywordsHeader: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  keywordContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+  },
+  keywordBadge: {
+    backgroundColor: '#2c2c2e',
+    color: '#fff',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    fontSize: 14,
+    marginRight: 8,
+    marginBottom: 6,
   },
 });

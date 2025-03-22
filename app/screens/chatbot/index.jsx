@@ -1,242 +1,311 @@
 import React, { useState } from 'react';
+import { View, StyleSheet } from 'react-native';
 import {
-  View,
-  StyleSheet,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
-import {
-  Provider as PaperProvider,
   Text,
   Button,
+  Card,
   Checkbox,
-  RadioButton,
   TextInput,
-  DefaultTheme,
-  configureFonts,
 } from 'react-native-paper';
-import {
-  useFonts,
-  Inter_400Regular,
-  Inter_600SemiBold,
-} from '@expo-google-fonts/inter';
-import AppLoading from 'expo-app-loading';
 import { useNavigation } from '@react-navigation/native';
-import Constants from 'expo-constants';
 
+const programmingLanguages = ['JavaScript', 'Python', 'Go', 'Rust', 'C#', 'Java'];
 
-const fontConfig = {
-  default: {
-    regular: {
-      fontFamily: 'Inter_400Regular',
-      fontWeight: 'normal',
-    },
-    medium: {
-      fontFamily: 'Inter_600SemiBold',
-      fontWeight: 'normal',
-    },
-    light: {
-      fontFamily: 'Inter_400Regular',
-      fontWeight: 'normal',
-    },
-    thin: {
-      fontFamily: 'Inter_400Regular',
-      fontWeight: 'normal',
-    },
-  },
-};
-
-const theme = {
-  ...DefaultTheme,
-  dark: true,
-  fonts: configureFonts(fontConfig),
-  colors: {
-    ...DefaultTheme.colors,
-    background: '#121212',
-    surface: '#1e1e1e',
-    primary: '#BB86FC',
-    text: '#ffffff',
-    placeholder: '#aaaaaa',
-  },
+const languageFrameworks = {
+  JavaScript: ['React', 'Vue', 'Angular', 'Next.js'],
+  Python: ['Django', 'Flask', 'FastAPI'],
+  Go: ['Gin', 'Echo', 'Fiber'],
+  Rust: ['Rocket', 'Actix', 'Yew'],
+  'C#': ['ASP.NET', 'Blazor', 'Unity'],
+  Java: ['Spring', 'Struts', 'Hibernate'],
 };
 
 export default function QuestionnaireScreen() {
-  const [currentStep, setCurrentStep] = useState(0);
+  const navigation = useNavigation();
 
-  const [answer1, setAnswer1] = useState('');
-  const [answer2, setAnswer2] = useState([]);
-  const [answer3, setAnswer3] = useState([]);
-  const [answer4, setAnswer4] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [stage, setStage] = useState('experience'); // experience | level | frameworks
+  const [currentLanguage, setCurrentLanguage] = useState(programmingLanguages[0]);
+  const [experienced, setExperienced] = useState([]);
+  const [currentLevel, setCurrentLevel] = useState('');
+  const [selectedFrameworks, setSelectedFrameworks] = useState({});
+  const [finalStage, setFinalStage] = useState(false);
+  const [learningGoal, setLearningGoal] = useState('');
+  const [step, setStep] = useState('welcome'); // welcome | experience | level | frameworks | final
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
 
-  const navigator = useNavigation();
-
-  const [fontsLoaded] = useFonts({
-    Inter_400Regular,
-    Inter_600SemiBold,
-  });
-
-  if (!fontsLoaded) return <AppLoading />;
-
-  const handleMultiSelect = (value, answer, setAnswer) => {
-    if (answer.includes(value)) {
-      setAnswer(answer.filter((item) => item !== value));
+  const handleExperience = (hasExperience) => {
+    if (hasExperience) {
+      setStage('level');
     } else {
-      setAnswer([...answer, value]);
+      moveToNextLanguage();
     }
   };
 
-  const handleNext = () => {
-    if (currentStep < 3) {
-      setCurrentStep(currentStep + 1);
+  const handleLevel = (level) => {
+    setCurrentLevel(level);
+    setStage('frameworks');
+  };
+
+  const toggleFramework = (framework) => {
+    if (selectedFrameworks[framework]) {
+      const updated = { ...selectedFrameworks };
+      delete updated[framework];
+      setSelectedFrameworks(updated);
     } else {
-      const finalAnswers = {
-        favoriteLanguage: answer1,
-        learningTopics: answer2,
-        techInterests: answer3,
-        personalGoal: answer4,
-      };
-      console.log('User Answers:', finalAnswers);
-      navigator.replace('Home', { userAnswers: finalAnswers });
+      setSelectedFrameworks({ ...selectedFrameworks, [framework]: '' });
     }
   };
+
+  const setFrameworkLevel = (framework, level) => {
+    setSelectedFrameworks({ ...selectedFrameworks, [framework]: level });
+  };
+
+  const handleFrameworkSubmit = () => {
+    const frameworks = Object.entries(selectedFrameworks)
+      .filter(([_, level]) => level)
+      .map(([name, level]) => ({ name, level }));
+
+    const updated = [
+      ...experienced,
+      {
+        language: currentLanguage,
+        level: currentLevel,
+        frameworks,
+      },
+    ];
+
+    setExperienced(updated);
+    setSelectedFrameworks({});
+    setCurrentLevel('');
+    moveToNextLanguage();
+  };
+
+  const moveToNextLanguage = () => {
+    const nextIndex = currentIndex + 1;
+    if (nextIndex < programmingLanguages.length) {
+      const nextLang = programmingLanguages[nextIndex];
+      setCurrentIndex(nextIndex);
+      setCurrentLanguage(nextLang);
+      setStage('experience');
+    } else {
+      setFinalStage(true);
+    }
+  };
+
+  const frameworks = languageFrameworks[currentLanguage] || [];
 
   return (
-    <PaperProvider theme={theme}>
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.header}>Welcome! Let’s get to know you</Text>
+    <View style={styles.container}>
+      <Card style={styles.card}>
+        <Card.Content>
+          {step === 'welcome' ? (
+          <>
+            <Text style={styles.question}>👋 Welcome! Let’s get to know you</Text>
+            <TextInput
+              mode="outlined"
+              label="Name"
+              value={name}
+              onChangeText={setName}
+              style={{ marginBottom: 12 }}
+            />
+            <TextInput
+              mode="outlined"
+              label="Email"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
+              style={{ marginBottom: 20 }}
+            />
+            <Button
+              mode="contained"
+              onPress={() => setStep('main')}
+              disabled={!name.trim() || !email.trim()}
+            >
+              Start Questionnaire
+            </Button>
+          </>
+        ) : !finalStage ? (
+            <>
+              {stage === 'experience' && (
+                <>
+                  <Text style={styles.question}>
+                    Do you have experience with{' '}
+                    <Text style={styles.language}>{currentLanguage}</Text>?
+                  </Text>
+                  <View style={styles.buttonRow}>
+                    <Button
+                      mode="contained"
+                      onPress={() => handleExperience(true)}
+                      style={styles.button}
+                    >
+                      Yes
+                    </Button>
+                    <Button
+                      mode="outlined"
+                      onPress={() => handleExperience(false)}
+                      style={styles.button}
+                    >
+                      No
+                    </Button>
+                  </View>
+                </>
+              )}
 
-          {currentStep === 0 && (
-            <View style={styles.card}>
-              <Text style={styles.question}>1. What’s your favorite language?</Text>
-              <RadioButton.Group onValueChange={setAnswer1} value={answer1}>
-                {['JavaScript', 'Python', 'Rust'].map((lang) => (
-                  <RadioButton.Item
-                    key={lang}
-                    label={lang}
-                    value={lang}
-                    labelStyle={styles.radioLabel}
-                    color={theme.colors.primary}
-                  />
-                ))}
-              </RadioButton.Group>
-            </View>
-          )}
+              {stage === 'level' && (
+                <>
+                  <Text style={styles.question}>
+                    What is your level in{' '}
+                    <Text style={styles.language}>{currentLanguage}</Text>?
+                  </Text>
+                  <View style={styles.buttonColumn}>
+                    {['Entry', 'Intermediate', 'Advanced'].map((level) => (
+                      <Button
+                        key={level}
+                        mode="contained"
+                        onPress={() => handleLevel(level)}
+                        style={styles.button}
+                      >
+                        {level}
+                      </Button>
+                    ))}
+                  </View>
+                </>
+              )}
 
-          {currentStep === 1 && (
-            <View style={styles.card}>
-              <Text style={styles.question}>2. What topics are you learning? (Select all that apply)</Text>
-              {['Web Dev', 'Mobile Dev', 'AI', 'Cloud', 'DevOps'].map((topic) => (
-                <Checkbox.Item
-                  key={topic}
-                  label={topic}
-                  status={answer2.includes(topic) ? 'checked' : 'unchecked'}
-                  onPress={() => handleMultiSelect(topic, answer2, setAnswer2)}
-                  labelStyle={styles.checkboxLabel}
-                  color={theme.colors.primary}
-                />
-              ))}
-            </View>
-          )}
+              {stage === 'frameworks' && (
+                <>
+                  <Text style={styles.question}>
+                    Which frameworks have you used with{' '}
+                    <Text style={styles.language}>{currentLanguage}</Text>?
+                  </Text>
 
-          {currentStep === 2 && (
-            <View style={styles.card}>
-              <Text style={styles.question}>3. What technologies are you curious about? (Select all)</Text>
-              {['Blockchain', 'AR/VR', 'IoT', 'Cybersecurity'].map((tech) => (
-                <Checkbox.Item
-                  key={tech}
-                  label={tech}
-                  status={answer3.includes(tech) ? 'checked' : 'unchecked'}
-                  onPress={() => handleMultiSelect(tech, answer3, setAnswer3)}
-                  labelStyle={styles.checkboxLabel}
-                  color={theme.colors.primary}
-                />
-              ))}
-            </View>
-          )}
+                  {frameworks.map((fw) => (
+                    <View key={fw} style={{ marginBottom: 8 }}>
+                      <Checkbox.Item
+                        label={fw}
+                        status={selectedFrameworks[fw] ? 'checked' : 'unchecked'}
+                        onPress={() => toggleFramework(fw)}
+                        labelStyle={{ color: '#fff' }}
+                        color="#BB86FC"
+                      />
+                      {selectedFrameworks[fw] !== undefined && (
+                        <View style={styles.submenuList}>
+                          {['Entry', 'Intermediate', 'Advanced'].map((level) => (
+                            <Button
+                              key={level}
+                              mode={selectedFrameworks[fw] === level ? 'contained' : 'text'}
+                              onPress={() => setFrameworkLevel(fw, level)}
+                              style={styles.listItem}
+                              contentStyle={{ justifyContent: 'flex-start' }}
+                              labelStyle={{ textAlign: 'left' }}
+                            >
+                              {level}
+                            </Button>
+                          ))}
+                        </View>
+                      )}
+                    </View>
+                  ))}
 
-          {currentStep === 3 && (
-            <View style={styles.card}>
-              <Text style={styles.question}>4. What’s your personal goal with coding?</Text>
+                  <Button
+                    mode="contained"
+                    onPress={handleFrameworkSubmit}
+                    disabled={
+                      Object.keys(selectedFrameworks).length > 0 &&
+                      Object.values(selectedFrameworks).some((v) => v === '')
+                    }
+                    style={{ marginTop: 16 }}
+                  >
+                    Continue
+                  </Button>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <Text style={styles.question}>What do you want to learn?</Text>
               <TextInput
                 mode="outlined"
-                placeholder="Type your answer..."
-                value={answer4}
-                onChangeText={setAnswer4}
-                style={styles.input}
+                placeholder="e.g. I want to learn backend with Node.js"
+                value={learningGoal}
+                onChangeText={setLearningGoal}
                 multiline
+                style={{ marginBottom: 12 }}
               />
-            </View>
+              <Button
+                mode="contained"
+                onPress={() => {
+                  const userProfile = {
+                    username:name,
+                    email,
+                    experiencedLanguages: experienced,
+                    learningGoal: learningGoal.trim(),
+                  };
+                  console.log(userProfile)
+                  navigation.replace('Home', { userProfile });
+                }}
+                disabled={!learningGoal.trim()}
+              >
+                Submit
+              </Button>
+            </>
           )}
-
-          <Button
-            mode="contained"
-            onPress={handleNext}
-            style={styles.button}
-            disabled={
-              (currentStep === 0 && !answer1) ||
-              (currentStep === 3 && !answer4.trim())
-            }
-          >
-            {currentStep < 3 ? 'Next' : 'Submit'}
-          </Button>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </PaperProvider>
+        </Card.Content>
+      </Card>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
-    marginTop:Constants.statusBarHeight
-  },
-  content: {
+    backgroundColor: '#121212',
     padding: 20,
-  },
-  header: {
-    fontSize: 22,
-    fontFamily: 'Inter_600SemiBold',
-    color: '#fff',
-    marginBottom: 24,
-    textAlign: 'center',
+    justifyContent: 'center',
   },
   card: {
-    backgroundColor: theme.colors.surface,
-    padding: 16,
+    backgroundColor: '#1e1e1e',
     borderRadius: 16,
-    marginBottom: 20,
+    padding: 16,
     borderWidth: 1,
-    borderColor: '#2c2c2e',
+    borderColor: '#333',
   },
   question: {
-    fontSize: 18,
-    fontFamily: 'Inter_600SemiBold',
+    fontSize: 20,
     color: '#fff',
-    marginBottom: 12,
+    marginBottom: 24,
   },
-  radioLabel: {
-    fontSize: 16,
-    fontFamily: 'Inter_400Regular',
-    color: '#fff',
+  language: {
+    fontWeight: 'bold',
+    color: '#BB86FC',
   },
-  checkboxLabel: {
-    fontSize: 16,
-    fontFamily: 'Inter_400Regular',
-    color: '#fff',
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom:12,
+    flexWrap:"wrap"
   },
-  input: {
-    backgroundColor: theme.colors.surface,
-    color:"#fff",
-    fontSize: 16,
+  buttonColumn: {
+    flexDirection: 'column',
+    gap: 12,
   },
   button: {
-    marginTop: 12,
+    marginVertical: 6,
     borderRadius: 12,
+    width:"100%"
+  },
+  submenu: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
+    marginLeft: 8,
+  },
+  submenuButton: {
+    marginRight: 8,
+    marginBottom: 8,
   },
 });

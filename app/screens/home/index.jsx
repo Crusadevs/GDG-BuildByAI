@@ -24,6 +24,7 @@ const allRoadmaps = [
           id: '1',
           title: 'Intro to HTML',
           description: 'Learn the building blocks of web pages.',
+          keywords: ['HTML', 'Elements', 'Tags'],
           paidCourses: [
             {
               label: 'HTML & CSS: Web Development on Udemy',
@@ -35,6 +36,7 @@ const allRoadmaps = [
           id: '2',
           title: 'Mastering CSS',
           description: 'Style and layout your websites.',
+          keywords: ['CSS', 'Flexbox', 'Layout', 'Styling'],
           paidCourses: [
             {
               label: 'Advanced CSS and Sass on Udemy',
@@ -46,6 +48,7 @@ const allRoadmaps = [
           id: '3',
           title: 'JavaScript Basics',
           description: 'Add interactivity with JS.',
+          keywords: ['JavaScript', 'Variables', 'Functions', 'DOM'],
           paidCourses: [
             {
               label: 'JavaScript - The Complete Guide on Udemy',
@@ -57,6 +60,7 @@ const allRoadmaps = [
           id: '4',
           title: 'React Fundamentals',
           description: 'Build component-based UIs.',
+          keywords: ['React', 'Components', 'JSX', 'Props', 'State'],
           paidCourses: [
             {
               label: 'React - The Complete Guide on Udemy',
@@ -76,6 +80,7 @@ const allRoadmaps = [
           id: '1',
           title: 'Node.js Introduction',
           description: 'Understand the runtime and environment.',
+          keywords: ['Node.js', 'V8 Engine', 'Non-blocking I/O'],
           paidCourses: [
             {
               label: 'Node.js Developer Course on Udemy',
@@ -87,6 +92,7 @@ const allRoadmaps = [
           id: '2',
           title: 'REST APIs with Express',
           description: 'Create APIs and route logic.',
+          keywords: ['Express', 'REST API', 'Routing', 'Middleware'],
           paidCourses: [
             {
               label: 'RESTful API with Node.js & Express on Udemy',
@@ -98,6 +104,7 @@ const allRoadmaps = [
           id: '3',
           title: 'Databases with MongoDB',
           description: 'Connect, read, write to MongoDB.',
+          keywords: ['MongoDB', 'CRUD', 'NoSQL', 'Mongoose'],
           paidCourses: [
             {
               label: 'MongoDB - The Complete Developer’s Guide on Udemy',
@@ -117,6 +124,7 @@ const allRoadmaps = [
           id: '1',
           title: 'Python for ML',
           description: 'Brush up Python essentials.',
+          keywords: ['Python', 'Syntax', 'Loops', 'Functions'],
           paidCourses: [
             {
               label: 'Complete Python Bootcamp on Udemy',
@@ -128,6 +136,7 @@ const allRoadmaps = [
           id: '2',
           title: 'Data Analysis with Numpy',
           description: 'Process and understand data.',
+          keywords: ['Numpy', 'Arrays', 'Data Analysis', 'Math Operations'],
           paidCourses: [
             {
               label: 'Data Analysis with Python & Pandas on Udemy',
@@ -139,6 +148,7 @@ const allRoadmaps = [
           id: '3',
           title: 'First ML Model',
           description: 'Train a classifier with Scikit-Learn.',
+          keywords: ['Machine Learning', 'Scikit-Learn', 'Model Training', 'Classification'],
           paidCourses: [
             {
               label: 'Machine Learning A-Z on Udemy',
@@ -158,6 +168,7 @@ const allRoadmaps = [
           id: '1',
           title: 'React Native Basics',
           description: 'Understand the structure and core components.',
+          keywords: ['React Native', 'Components', 'View', 'Text', 'StyleSheet'],
           paidCourses: [
             {
               label: 'React Native - The Practical Guide on Udemy',
@@ -169,6 +180,7 @@ const allRoadmaps = [
           id: '2',
           title: 'Building UI with Expo',
           description: 'Design beautiful layouts.',
+          keywords: ['Expo', 'UI Design', 'Flexbox', 'Layout'],
           paidCourses: [
             {
               label: 'The Complete React Native + Hooks Course on Udemy',
@@ -180,6 +192,7 @@ const allRoadmaps = [
           id: '3',
           title: 'Navigation & Storage',
           description: 'Add screen flow and local data.',
+          keywords: ['React Navigation', 'AsyncStorage', 'Routing', 'State Persistence'],
           paidCourses: [
             {
               label: 'React Native Advanced Concepts on Udemy',
@@ -191,14 +204,13 @@ const allRoadmaps = [
     },
   ];
   
+  
 
 export default function HomeScreen({ route }) {
   const navigation = useNavigation();
-  const { userAnswers } = route.params;
+  const { userProfile } = route.params;
 
-  const { favoriteLanguage, personalGoal, techInterests } = userAnswers;
-  const email = 'user@example.com';
-  const username = userAnswers.name || 'Dev Ninja';
+  const { experiencedLanguages,username,email } = userProfile;
 
   const recommendedRoadmaps = allRoadmaps.slice(0, 3); // top 3
 
@@ -226,7 +238,7 @@ export default function HomeScreen({ route }) {
         <Card.Content>
           <Text style={styles.text}>👤 {username}</Text>
           <Text style={styles.text}>📧 {email}</Text>
-          <Text style={styles.text}>🧠 Interests: {techInterests.join(', ')}</Text>
+          <Text style={styles.text}>🧠 Experience: {experiencedLanguages.map(lang => (lang.language + " "))}</Text>
         </Card.Content>
       </Card>
 
